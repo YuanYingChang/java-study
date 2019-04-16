@@ -1,0 +1,542 @@
+一、Ant介绍
+
+
+Ant是Java的生成工具，是Apache的核心项目；直接在apache官网下载即可；
+
+Ant类似于Unix中的Make工具，都是用来编译、生成；
+
+Ant是跨平台的，而Make不能；
+
+Ant的主要目的就是把你想做的事情自动化，不用你手动一步一步做，因为里面内置了javac、java、创建目录、复制文件等功能，所以可以直接点击Ant文件，即可编译生成你的项目；
+
+下载地址： http://ant.apache.org/bindownload.cgi  
+
+
+二、Ant配置
+
+
+在Ant安装之前需要安装好JDK，并配置好JAVA_HOME；
+
+Ant配置：
+
+1.新建环境变量ANT_HOME：值为ANT的主目录；
+
+2.在path中配置%ANT_HOME%/bin；
+
+配置完成之后，打开命令行，输入ant，当出现：
+
+Buildfile: build.xml does not exist!
+Build failed
+
+时说明配置完成；
+
+
+
+三、Ant入门
+
+
+
+ant的默认生成文件为build.xml；输入ant后，ant会在当前目录下搜索是否有build.xml，如果有，则执行；当然也可以自定义生成文件，通过ant -f a.xml即可指定a.xml为生成文件；
+
+ant的生成文件是xml文件，整体结构为：
+
+<?xml version="1.0" encoding="GBK"?>
+<project default=" targetname">
+    <target name="name">
+    </target>
+</project>
+
+project是生成文件的根元素，表示一个工程；
+
+target是project的子元素，表示一个任务；一个project中可以定义多个target元素，表示多个任务；
+
+default属性表示默认执行的target，如果ant命令没有指定target，则执行default的target；
+
+ant targetname;则会执行此target，而忽略default设置的target；
+
+注意：不能有两个相同的targetname；
+
+代码举例：创建并删除hello目录；
+
+
+<?xml version="1.0" encoding="gbk"?>
+<project default="delete">
+	<property name="name" value="xiazdong"/>
+	<target name="delete" depends="mkdir">
+		<delete dir="${name}"/>
+	</target>
+	<target name="mkdir">
+		<mkdir dir="${name}"/>
+	</target>
+</project>
+
+
+四、Ant的XML元素详解
+
+
+
+1.<project>元素
+
+
+是Ant生成文件的根元素；一般形式如：
+
+<project default="    "[ basedir="." ] [name="projectname"]>
+
+default的值是默认执行的target名；
+
+basedir是指定基准目录，一般都是basedir="."
+
+name是指工程名字；
+
+
+
+2.<target>元素
+
+
+是project元素的子元素，在project元素中能够有多个target；一般形式如下：
+
+<target name="    "  [ depends="  A  "]  [ if ="  prop1 "] [ unless=" prop2"]>
+
+</target>
+
+name表示target的名称；
+
+depends中填写其他target名称(可以有多个名称，用逗号分割)，表示只有targetA完成之后才能够做此target，如果执行此target，则会先执行A；
+
+if的值表示一个属性名，只有设置了该属性名，才能执行此target；
+
+unless的值表示一个属性名，只有没有设置该属性名，才能执行此target；
+
+
+
+3.<property>元素
+
+
+是project的子元素；property用于定义属性，一般形如：
+
+(1)<property name="  pname  "   value="  pvalue   "/>
+
+如果要使用此property，则需要${pname}；类似于表达式语言；
+
+(2)<property file="a.properties"/> 通过此属性文件导入属性；
+
+如果单纯想使用$，则通过$$表示；
+
+
+
+五、Task介绍
+
+
+在Ant中Task是target的子元素，即一个target中可以有多个task；而Task分为：
+
+(1)核心Task；
+
+(2)可选Task；
+
+(3)自定义Task；
+
+下面介绍一些常用的核心Task；
+
+
+
+1.<echo>
+
+
+用于单纯输出，一般形如：
+
+<echo>      </echo>
+
+举例：<echo>hello</echo>
+
+
+
+2.<javac>
+
+
+用于编译java文件，一般形式如下：
+
+<javac srcdir="  src   "       destdir="  class   "  [classpath="     "]/>；
+
+srcdir是编译此文件夹下或子文件夹下的全部java文件;
+
+destdir是编译后的class文件放置路径；
+
+classpath指定第三方类库；
+
+
+
+3.<java>
+
+
+运行java类，一般形式如下：
+
+<java classname="    " fork="yes">
+
+    【<arg line="param1   param2   param3"/>】
+
+</java>
+
+classname用于指定运行的类名称；
+
+fork="yes"表示另起一个JVM来执行java命令，而不是中断ANT命令，因此fork必须为yes；
+
+
+
+4.<jar>
+
+
+打包成jar包；一般形式如下：
+
+<jar destfile="  main.jar" basedir="    ">
+
+    <manifest>
+
+        <attribute name="Main-Class"   value="classname"/>    <!--指定主类-->
+
+    </manifest>
+
+</jar>
+
+destfiie的值为jar包的名称；一般为${dest}/main.jar；
+
+basedir的值是需要打成jar包的目录；一般为${classes}
+
+manifest表示设置META-INF；
+
+
+
+5.<mkdir>
+
+
+创建目录，可以多层创建，比如a\b\c，则可以连续创建，一般形式如下：
+
+<mkdir dir="a\b"/>
+
+
+
+6.<delete>
+
+
+删除目录，一般形式如下：
+
+<delete dir="a\b"/> 可以删除a目录下的b目录；
+
+<delete file="1.txt"/>可以删除文件；
+
+
+
+7.<tstamp>
+
+
+时间戳，一般形式如下：
+
+<tstamp />
+
+接下来可以使用${DSTAMP}进行调用当前时间；
+
+
+
+8.<copy>
+
+
+复制文件，一般形式如下：
+
+<copy file="file1" tofile="file2"/>
+
+file是源文件；
+
+tofile是目标文件；
+
+
+
+9.<move>
+
+
+移动文件，一般形式如下：
+
+<move file="file1" tofile="file2"/>
+
+file是源文件；
+
+tofile是目标文件；
+
+
+
+10.<replace>
+
+
+ 用于替换字符串，类似于String的replace操作，一般形式如下：
+
+<replace file="filename" token="old" value="new"/>
+
+file表示要执行替换的文件；
+
+token表示被替换的字符串；
+
+value表示替换的字符串；
+
+
+
+代码举例：一般项目中的ant结构
+
+<project default="init">
+	<property name="src" value="src"/>
+	<property name="classes" value="classes"/>
+	<property name="dest" value="dest"/>
+	<path id="classpath">
+		<pathelement path="${classes}"/>
+	</path>
+	<target name="help">
+		<echo>help -打印帮助信息</echo>
+		<echo>compile -编译java源文件</echo>
+		<echo>run -运行程序</echo>
+		<echo>build -打成jar包</echo>
+		<echo>clean -清楚全部编译生成文件</echo>
+	</target>
+	<target name="compile">
+		<delete dir="${classes}"/>
+		<mkdir dir="${classes}"/>
+		<javac srcdir="${src}" destdir="${classes}"/>
+	</target>
+	<target name="run" depends="compile">
+		<java classname="org.xiazdong.Test" fork="yes">
+			<classpath path="${classes}"/>
+		</java>
+	</target>
+	<target name="build" depends="run">
+		<delete dir="${dest}"/>
+		<mkdir dir="${dest}"/>
+		<jar destfile="${dest}/Test.jar" basedir="${classes}">
+			<manifest>
+				<attribute name="Main-Class" value="org.xiazdong.Test"/>
+			</manifest>
+		</jar>
+	</target>
+	<target name="clean">
+		<delete dir="${classes}"/>
+		<delete dir="${dest}"/>
+	</target>
+</project>
+
+
+总结一下：
+
+<?xml version = "1.0" encoding="GBK"?>
+<project name="Test" default="" basedir=".">
+	<property name="src" value="${basedir}\src"/>
+	<property file="${basedir}\a.properties"/>
+	<!--
+	path用法
+		1.id属性表示编号，用于被引用
+	-->
+	<path id="classpath">
+	<!-- 
+	pathelement的用法
+		1.path表示多个目录，用“;”隔开目录	
+		2.location表示一个目录
+	-->
+		<pathelement path="lib;src"/>
+		<pathelement location="lib"/>
+	<!--
+	dirset的用法
+		1.dir属性指定根目录
+		2.子元素<include name="    "/>表示包含的目录
+		3.子元素<exclude name="    "/>表示不包含的目录
+	-->
+		<dirset dir="lib">
+			<include name="**/*Test*"/>
+			<exclude name="**/class"/>
+		</dirset>
+	<!--
+	filelist的用法
+		1.dir属性指定根路径
+		2.files属性指定文件名的列表，用","隔开
+	-->
+		<filelist dir="lib" files="a.xml,b.xml"/>
+	<!--
+	fileset用法
+		1.dir属性指出根路径
+		2.子元素<include name="   "/>指定包含的文件名
+	-->
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	<!--
+	target用法
+		1.表示任务,子元素为各种task的集合;
+	-->
+	<target name="target1">
+	<!--
+	javac用法
+		1.srcdir表示java文件的目录
+		2.destdir表示class文件的保存目录
+	-->
+		<javac srcdir="src" destdir="bin">
+	<!--
+	classpath用法
+		1.refid引用前面的path指定的路径
+	-->
+			<classpath refid="classpath"/>
+		</javac>
+	<!--
+	java用法
+		1.classname表示要运行的类
+		2.fork="yes"一定要写上！！
+	-->
+		<java classname="Test" fork="yes">
+			<classpath refid="classpath"/>
+	<!--
+		arg表示指定的参数
+	-->
+			<arg value="a b c"/>
+		</java>
+	<!--
+	echo表示输出
+	-->
+		<echo>Hello world</echo>
+	<!--
+	copy表示复制文件
+	delete表示删除文件
+	mkdir表示创建目录
+	move表示移动文件
+	-->
+		<copy file="src.txt" tofile="dest.txt"/>
+		<delete dir="src"/>
+		<mkdir dir="src"/>
+		<move file="src.txt" tofile="dest.txt"/>
+	</target>
+</project>
+
+
+
+
+
+五、在Eclipse中使用Ant
+
+
+在Eclipse中虽然没有内置创建Ant的生成文件，但是可以通过配置完成；
+
+(1)点击  window-->preferences-->editors-->file associations;
+
+(2)在File types中创建一个build.xml，并将associated editor的默认项设置为ant editor即可；
+
+当在项目中创建一个build.xml时，这个文件就是ant的生成文件；
+
+ 
+
+
+
+ 
+
+六、模式匹配
+
+
+在Ant中有一些基本的模式匹配的功能，比如：
+
+*表示任意字符串，**表示任意数量的目录；
+
+(1)*.java，表示任意的java文件；
+
+(2)*/*.java表示当前目录的任意java文件；
+
+(3)**/*.java表示当前目录结构下的任意java文件；
+
+ 
+
+<fileset dir="   src  ">
+
+    <include name="**/*.java"/>
+
+    <include name="**/*.txt"/>
+
+    <exclude name="**/*Test*"/>
+
+</fileset>
+
+表示包含src目录下的所有java和txt文件，排除文件名包含Test的文件；
+
+ 
+
+举例：将java文件拷贝到dest文件夹下；
+
+<copy todir="dest">
+	<fileset dir=".">
+		<include name="**/*.java"/>
+	</fileset>
+</copy>
+ 
+
+七、自定义任务
+
+
+ 自定义任务类似于JSP中的自定义标签；
+
+步骤：
+
+(1)继承org.apache.tools.Task;
+
+(2)覆写public void execute()throws BuildException;
+
+(3)在类中添加的属性即为任务标签的属性；
+
+(4)在build.xml中声明任务<taskdef name="   "   classname="    "   classpath="bin"/>
+
+举例：复制文件；
+
+package org.tools;
+ 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+ 
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Task;
+public class SimpleTask extends Task{
+	private File file;
+	private File tofile;
+	public File getFile() {
+		return file;
+	}
+	public void setFile(File file) {
+		this.file = file;
+	}
+	public File getTofile() {
+		return tofile;
+	}
+	public void setTofile(File tofile) {
+		this.tofile = tofile;
+	}
+	@Override
+	public void execute() throws BuildException {
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter(tofile));
+			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			String line = null;
+			while((line=in.readLine())!=null){
+				out.println(line);
+			}
+			out.close();
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+}
+build.xml
+<taskdef name="MyCopy" classname="org.tools.SimpleTask" classpath="bin"></taskdef>
+	<target name="mycopy">
+		<MyCopy file="2.txt" tofile="output.txt"/>
+	</target>
+
+--------------------- 
+作者：xiazdong 
+来源：CSDN 
+原文：https://blog.csdn.net/xiazdong/article/details/7038851 
+版权声明：本文为博主原创文章，转载请附上博文链接！
